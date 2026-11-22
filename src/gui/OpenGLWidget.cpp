@@ -1,3 +1,36 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:ba17e9c2c59fc5d43c83df8ce84bdd92ea52c5e6cd3a15c69fe1c1c97cb46c08
-size 733
+#include <glad/glad.h>
+#include "OpenGLWidget.h"
+
+#include <iostream>
+#include <QOpenGLContext>
+
+// Creating VAO, VBO, EBO, Shaders, Textures, setting up OpenGL
+void OpenGLWidget::initializeGL()
+{
+    if (!gladLoadGLLoader(
+        [](const char* name) -> void*
+        {
+            return reinterpret_cast<void*>(
+                QOpenGLContext::currentContext()
+                ->getProcAddress(name)
+                );
+        }))
+    {
+        std::cerr << "Failed to initialize GLAD!\n";
+        return;
+    }
+
+    glEnable(GL_DEPTH_TEST);
+
+}
+
+void OpenGLWidget::resizeGL(int w, int h)
+{
+	glViewport(0, 0, w, h);
+}
+
+// clear framebuffer, use shaders, set up uniforms, call glDrawElements/....
+void OpenGLWidget::paintGL()
+{
+
+}
