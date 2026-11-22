@@ -4,7 +4,7 @@
 #include <vector>
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
-	: m_vertices(vertices), m_indices(indices)
+	: m_vertices(std::move(vertices)), m_indices(std::move(indices))
 {
 	UploadToGPU();
 }

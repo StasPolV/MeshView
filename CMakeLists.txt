@@ -37,6 +37,7 @@ set_target_properties(assimp_prebuilt PROPERTIES
 	
 
 add_executable(MeshView src/main.cpp src/gui/MainWindow.h src/gui/MainWindow.cpp src/gui/OpenGLWidget.h src/gui/OpenGLWidget.cpp
-						src/renderer/Shader.h src/renderer/Shader.cpp src/renderer/Renderer.h src/renderer/Renderer.cpp src/scene/Camera.h src/scene/Camera.cpp src/scene/Mesh.h src/scene/Mesh.cpp)
+						src/renderer/Shader.h src/renderer/Shader.cpp src/renderer/Renderer.h src/renderer/Renderer.cpp src/scene/Camera.h 
+						src/scene/Camera.cpp src/scene/Mesh.h src/scene/Mesh.cpp src/scene/Model.h src/scene/Model.cpp)
 
 target_link_libraries(MeshView PRIVATE Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets glad glm assimp_prebuilt)
