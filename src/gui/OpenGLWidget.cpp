@@ -55,6 +55,8 @@ void OpenGLWidget::paintGL()
     m_delta_time = elapsed / 1000.0f;
     m_delta_time = std::min(m_delta_time, 0.1f);
 
+    ProcessInput();
+
     m_renderer->Render(m_camera.get(), m_screen_size.width / m_screen_size.height);
 
     update();
@@ -70,7 +72,7 @@ void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 
 void OpenGLWidget::keyReleaseEvent(QKeyEvent* event) 
 {
-    if (m_pressed_keys.find(event->key()) != m_pressed_keys.end()) 
+    if (!event->isAutoRepeat()) 
     {
         m_pressed_keys.erase(event->key());
     }
@@ -78,5 +80,20 @@ void OpenGLWidget::keyReleaseEvent(QKeyEvent* event)
 
 void OpenGLWidget::ProcessInput() 
 {
-
+    if (m_pressed_keys.contains(Qt::Key_W)) 
+    {
+        m_camera->ProcessKeyboard(CameraMovement::FORWARD, m_delta_time);
+    }
+    if (m_pressed_keys.contains(Qt::Key_S))
+    {
+        m_camera->ProcessKeyboard(CameraMovement::BACKWARD, m_delta_time);
+    }
+    if (m_pressed_keys.contains(Qt::Key_A))
+    {
+        m_camera->ProcessKeyboard(CameraMovement::LEFT, m_delta_time);
+    }
+    if (m_pressed_keys.contains(Qt::Key_D))
+    {
+        m_camera->ProcessKeyboard(CameraMovement::RIGHT, m_delta_time);
+    }
 }
