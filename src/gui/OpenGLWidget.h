@@ -3,8 +3,11 @@
 #include "../renderer/Renderer.h"
 #include "../scene/Camera.h"
 #include <QOpenGLWidget>
+#include <QKeyEvent>
+#include <QElapsedTimer>
 
 #include <memory>
+#include <set>
 
 
 struct ScreenSize 
@@ -23,8 +26,18 @@ protected:
 	void resizeGL(int w, int h) override;
 	void paintGL() override;
 
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
+
 private:
+	void ProcessInput();
+
 	std::unique_ptr<Renderer> m_renderer;
 	std::unique_ptr<Camera> m_camera;
 	ScreenSize m_screen_size;
+
+	float m_delta_time;
+	QElapsedTimer m_timer;
+
+	std::set<int> m_pressed_keys;
 };

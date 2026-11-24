@@ -3,18 +3,20 @@
 
 #include <iostream>
 #include <QOpenGLContext>
+#include <algorithm>
 #include <glm/glm.hpp>
+
+
 
 OpenGLWidget::OpenGLWidget(float screen_width, float screen_height, QWidget* parent)
     : QOpenGLWidget(parent), m_screen_size(screen_width, screen_height)
 {
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 // Creating VAO, VBO, EBO, Shaders, Textures, setting up OpenGL
 void OpenGLWidget::initializeGL()
 {
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
-
     if (!gladLoadGLLoader(
         [](const char* name) -> void*
         {
@@ -35,6 +37,8 @@ void OpenGLWidget::initializeGL()
     m_renderer->Initialize();
 
     m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    m_timer.start();
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
@@ -47,6 +51,32 @@ void OpenGLWidget::resizeGL(int w, int h)
 // clear framebuffer, use shaders, set up uniforms, call glDrawElements/....
 void OpenGLWidget::paintGL()
 {
-    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    qint64 elapsed = m_timer.restart();
+    m_delta_time = elapsed / 1000.0f;
+    m_delta_time = std::min(m_delta_time, 0.1f);
+
     m_renderer->Render(m_camera.get(), m_screen_size.width / m_screen_size.height);
+
+    update();
+}
+
+void OpenGLWidget::keyPressEvent(QKeyEvent* event) 
+{
+    if (!event->isAutoRepeat()) 
+    {
+        m_pressed_keys.insert(event->key());
+    }
+}
+
+void OpenGLWidget::keyReleaseEvent(QKeyEvent* event) 
+{
+    if (m_pressed_keys.find(event->key()) != m_pressed_keys.end()) 
+    {
+        m_pressed_keys.erase(event->key());
+    }
+}
+
+void OpenGLWidget::ProcessInput() 
+{
+
 }
