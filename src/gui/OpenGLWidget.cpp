@@ -6,12 +6,11 @@
 #include <algorithm>
 #include <glm/glm.hpp>
 
-
-
 OpenGLWidget::OpenGLWidget(float screen_width, float screen_height, QWidget* parent)
     : QOpenGLWidget(parent), m_screen_size(screen_width, screen_height)
 {
-    setFocusPolicy(Qt::StrongFocus);
+    setFocusPolicy(Qt::ClickFocus);
+    setMouseTracking(true);
 }
 
 // Creating VAO, VBO, EBO, Shaders, Textures, setting up OpenGL
@@ -62,12 +61,21 @@ void OpenGLWidget::paintGL()
     update();
 }
 
-void OpenGLWidget::keyPressEvent(QKeyEvent* event) 
+void OpenGLWidget::keyPressEvent(QKeyEvent* event)
 {
-    if (!event->isAutoRepeat()) 
+    if (event->key() == Qt::Key_Escape)
+    {
+        clearFocus();
+        event->accept();
+        return;
+    }
+
+    if (!event->isAutoRepeat())
     {
         m_pressed_keys.insert(event->key());
     }
+
+    event->accept();
 }
 
 void OpenGLWidget::keyReleaseEvent(QKeyEvent* event) 
@@ -75,7 +83,10 @@ void OpenGLWidget::keyReleaseEvent(QKeyEvent* event)
     if (!event->isAutoRepeat()) 
     {
         m_pressed_keys.erase(event->key());
+        m_camera->SetSpeed(m_camera->Speed() * 2.0f);
     }
+
+    QOpenGLWidget::keyReleaseEvent(event);
 }
 
 void OpenGLWidget::ProcessInput() 
@@ -96,4 +107,59 @@ void OpenGLWidget::ProcessInput()
     {
         m_camera->ProcessKeyboard(CameraMovement::RIGHT, m_delta_time);
     }
+    if (m_pressed_keys.contains(Qt::Key_Shift))
+    {
+        m_camera->SetSpeed(m_camera->Speed() / 2.0f);
+    }
+}
+
+void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
+{
+    if (!hasFocus() || !m_camera) 
+    {
+
+        return;
+    }
+
+    const QPoint center = mapToGlobal(rect().center());
+    const QPoint position = QCursor::pos();
+
+    if (position == center) 
+    {
+        return;
+    }
+
+    const float xoffset = position.x() - center.x();
+    const float yoffset = center.y() - position.y();
+
+    m_camera->ProcessMouseMovement(xoffset, yoffset);
+
+    QCursor::setPos(center);
+
+    event->accept();
+}
+
+//void OpenGLWidget::wheelEvent(QWheelEvent* event) 
+//{
+//
+//
+//    event->accept();
+//}
+
+void OpenGLWidget::focusOutEvent(QFocusEvent* event)
+{
+    m_pressed_keys.clear();
+
+    unsetCursor();
+
+    QOpenGLWidget::focusOutEvent(event);
+}
+
+void OpenGLWidget::focusInEvent(QFocusEvent* event)
+{
+    QOpenGLWidget::focusInEvent(event);
+
+    setCursor(Qt::BlankCursor);
+
+    QCursor::setPos(mapToGlobal(rect().center()));
 }

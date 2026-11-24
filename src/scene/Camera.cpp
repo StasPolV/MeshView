@@ -1,5 +1,13 @@
 #include "Camera.h"
 
+#include <algorithm>
+
+namespace 
+{
+	static const float MAX_SPEED = 5.0f;
+	static const float MIN_SPEED = 2.5f;
+}
+
 Camera::Camera(const glm::vec3& position, const glm::vec3& up, float yaw, float pitch)
 	: m_position(position), m_world_up(up), m_yaw(yaw), m_pitch(pitch), 
 	  m_movement_speed(SPEED), m_mouse_sensitivity(SENSITIVITY), m_zoom(ZOOM)
@@ -85,9 +93,19 @@ glm::vec3 Camera::Front() const
 	return m_front;
 }
 
+float Camera::Speed() const 
+{
+	return m_movement_speed;
+}
+
 void Camera::SetPosition(const glm::vec3& position)
 {
 	m_position = position;
+}
+
+void Camera::SetSpeed(float speed) 
+{
+	m_movement_speed = std::clamp(speed, MIN_SPEED, MAX_SPEED);
 }
 
 void Camera::UpdateCameraVectors() 

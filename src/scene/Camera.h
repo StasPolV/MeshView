@@ -15,7 +15,7 @@ enum CameraMovement
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -33,8 +33,10 @@ public:
 	float Zoom() const;
 	glm::vec3 Position() const;
 	glm::vec3 Front() const;
+	float Speed() const;
 
 	void SetPosition(const glm::vec3& position);
+	void SetSpeed(float speed);
 
 private:
 	void UpdateCameraVectors();

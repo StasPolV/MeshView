@@ -4,6 +4,9 @@
 #include "../scene/Camera.h"
 #include <QOpenGLWidget>
 #include <QKeyEvent>
+#include <QMouseEvent>
+#include <QFocusEvent>
+#include <QWheelEvent>
 #include <QElapsedTimer>
 
 #include <memory>
@@ -28,6 +31,12 @@ protected:
 
 	void keyPressEvent(QKeyEvent* event) override;
 	void keyReleaseEvent(QKeyEvent* event) override;
+
+	void mouseMoveEvent(QMouseEvent* event) override;
+	// void wheelEvent(QWheelEvent* event) override;
+
+	void focusOutEvent(QFocusEvent* event) override;
+	void focusInEvent(QFocusEvent* event) override;
 
 private:
 	void ProcessInput();
