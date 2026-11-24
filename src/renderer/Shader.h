@@ -8,6 +8,7 @@ class Shader
 {
 public:
 	Shader(const std::string& vertex_shader, const std::string& fragment_shader, bool from_file);
+	~Shader();
 	
 	static Shader FromSource(const std::string& vertex_shader_src, const std::string& fragment_shader_src);
 	static Shader FromFile(const std::string& vertex_shader_path, const std::string& fragment_shader_path);

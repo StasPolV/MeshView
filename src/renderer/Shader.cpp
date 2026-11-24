@@ -9,7 +9,7 @@ namespace
 {
 	std::string readFile(const std::string& file_path) 
 	{
-		std::fstream file(file_path);
+		std::ifstream file(file_path);
 		if (!file.is_open())
 		{
 			std::cerr << "Failed to open file at " << file_path << '\n';
@@ -45,6 +45,11 @@ Shader::Shader(const std::string& vertex_shader, const std::string& fragment_sha
 
 	glDeleteShader(v_shader);
 	glDeleteShader(f_shader);
+}
+
+Shader::~Shader() 
+{
+	glDeleteProgram(m_id);
 }
 
 Shader Shader::FromSource(const std::string& vertex_shader_src, const std::string& fragment_shader_src)

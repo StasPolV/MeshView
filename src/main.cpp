@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QSurfaceFormat>
 
+#include "gui/MainWindow.h"
+
 int main(int argc, char* argv[])
 {
 	QSurfaceFormat format;
@@ -9,7 +11,10 @@ int main(int argc, char* argv[])
 	format.setDepthBufferSize(24);
 	QSurfaceFormat::setDefaultFormat(format);
 	
-
 	QApplication app(argc, argv);
+
+	MainWindow window;
+	window.show();
+
 	return app.exec();
 }

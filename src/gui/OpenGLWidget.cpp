@@ -3,10 +3,18 @@
 
 #include <iostream>
 #include <QOpenGLContext>
+#include <glm/glm.hpp>
+
+OpenGLWidget::OpenGLWidget(float screen_width, float screen_height, QWidget* parent)
+    : QOpenGLWidget(parent), m_screen_size(screen_width, screen_height)
+{
+}
 
 // Creating VAO, VBO, EBO, Shaders, Textures, setting up OpenGL
 void OpenGLWidget::initializeGL()
 {
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+
     if (!gladLoadGLLoader(
         [](const char* name) -> void*
         {
@@ -22,15 +30,23 @@ void OpenGLWidget::initializeGL()
 
     glEnable(GL_DEPTH_TEST);
 
+    m_renderer = std::make_unique<Renderer>();
+
+    m_renderer->Initialize();
+
+    m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
 	glViewport(0, 0, w, h);
+    m_screen_size.width = w;
+    m_screen_size.height = h;
 }
 
 // clear framebuffer, use shaders, set up uniforms, call glDrawElements/....
 void OpenGLWidget::paintGL()
 {
-
+    QOpenGLFunctions* f = QOpenGLContext::currentContext()->functions();
+    m_renderer->Render(m_camera.get(), m_screen_size.width / m_screen_size.height);
 }

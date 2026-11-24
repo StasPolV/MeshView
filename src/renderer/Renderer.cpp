@@ -1,5 +1,8 @@
 #include "Renderer.h"
 
+#include <QCoreApplication>
+#include <QDir>
+
 #include "../scene/Camera.h"
 #include "../scene/Mesh.h"
 
@@ -7,11 +10,15 @@
 
 void Renderer::Initialize() 
 {
+    QDir app_dir(QCoreApplication::applicationDirPath());
+
+
 	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
-	m_model_shader = std::make_unique<Shader>("assets/shaders/model.vs", "assets/shaders/model.fs", true);
+	m_model_shader = std::make_unique<Shader>(app_dir.filePath("assets/shaders/model.vs").toStdString(), 
+        app_dir.filePath("assets/shaders/model.fs").toStdString(), true);
 
     std::vector<Vertex> vertices = {
         Vertex{ { 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 0.0f} },
@@ -57,15 +64,19 @@ void Renderer::Initialize()
     m_mesh = std::make_unique<Mesh>(vertices, indices);
 }
 
-void Renderer::Render(const Camera& camera, float aspect_ratio) 
+void Renderer::Render(const Camera* camera, float aspect_ratio) 
 {
-	glm::mat4 model(0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    m_model_shader->Use();
+
+	glm::mat4 model(1.0f);
 	m_model_shader->SetMat4("model", model);
 
-	glm::mat4 view(camera.GetViewMatrix());
+	glm::mat4 view(camera->GetViewMatrix());
 	m_model_shader->SetMat4("view", view);
 
-	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom()), aspect_ratio, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom()), aspect_ratio, 0.1f, 100.0f);
 	m_model_shader->SetMat4("projection", projection);
 
     m_mesh->Draw();

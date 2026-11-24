@@ -2,17 +2,17 @@
 
 #include <glad/glad.h>
 #include "Shader.h"
+#include "../scene/Mesh.h"
 
 #include <memory>
 
 class Camera;
-class Mesh;
 
 class Renderer 
 {
 public:
 	void Initialize();
-	void Render(const Camera& camera, float aspect_ratio);
+	void Render(const Camera* camera, float aspect_ratio);
 	void Shutdown();
 
 private:
