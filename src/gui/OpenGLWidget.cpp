@@ -117,7 +117,6 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
 {
     if (!hasFocus() || !m_camera) 
     {
-
         return;
     }
 
@@ -139,12 +138,12 @@ void OpenGLWidget::mouseMoveEvent(QMouseEvent* event)
     event->accept();
 }
 
-//void OpenGLWidget::wheelEvent(QWheelEvent* event) 
-//{
-//
-//
-//    event->accept();
-//}
+void OpenGLWidget::wheelEvent(QWheelEvent* event) 
+{
+    float offset = event->angleDelta().y() / 120.0f;
+    m_camera->ProcessMouseScroll(offset);
+    event->accept();
+}
 
 void OpenGLWidget::focusOutEvent(QFocusEvent* event)
 {

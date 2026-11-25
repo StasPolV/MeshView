@@ -33,7 +33,7 @@ protected:
 	void keyReleaseEvent(QKeyEvent* event) override;
 
 	void mouseMoveEvent(QMouseEvent* event) override;
-	// void wheelEvent(QWheelEvent* event) override;
+	void wheelEvent(QWheelEvent* event) override;
 
 	void focusOutEvent(QFocusEvent* event) override;
 	void focusInEvent(QFocusEvent* event) override;
