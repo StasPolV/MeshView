@@ -58,7 +58,8 @@ target_include_directories(stb_image PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Dependen
 add_executable(MeshView src/main.cpp src/gui/MainWindow.h src/gui/MainWindow.cpp src/gui/OpenGLWidget.h src/gui/OpenGLWidget.cpp
 						src/renderer/Shader.h src/renderer/Shader.cpp src/renderer/Renderer.h src/renderer/Renderer.cpp src/scene/Camera.h 
 						src/scene/Camera.cpp src/scene/Mesh.h src/scene/Mesh.cpp src/scene/Model.h src/scene/Model.cpp
-						src/renderer/Texture.h src/renderer/Texture.cpp)
+						src/renderer/Texture.h src/renderer/Texture.cpp src/scene/lights/Light.h src/scene/lights/DirLight.h 
+						src/scene/lights/PointLight.h src/scene/lights/SpotLight.h)
 
 target_link_libraries(MeshView PRIVATE Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets glad glm assimp_prebuilt stb_image)
 
