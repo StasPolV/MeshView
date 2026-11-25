@@ -23,6 +23,8 @@ public:
 
 private:
 	std::unique_ptr<Shader> m_model_shader;
+	std::unique_ptr<Shader> m_light_shader;
+
 	std::unique_ptr<Mesh> m_mesh;
 	std::unique_ptr<Texture> m_texture;
 

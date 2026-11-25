@@ -8,6 +8,11 @@
 
 #include <glm/glm.hpp>
 
+namespace 
+{
+    static const int POINT_LIGHTS_COUNT = 4;
+}
+
 void Renderer::Initialize() 
 {
     QDir app_dir(QCoreApplication::applicationDirPath());
@@ -15,10 +20,12 @@ void Renderer::Initialize()
 
 	glEnable(GL_DEPTH_TEST);
 
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	m_model_shader = std::make_unique<Shader>(app_dir.filePath("assets/shaders/model.vs").toStdString(), 
         app_dir.filePath("assets/shaders/model.fs").toStdString(), true);
+    m_light_shader = std::make_unique<Shader>(app_dir.filePath("assets/shaders/light.vs").toStdString(),
+        app_dir.filePath("assets/shaders/light.fs").toStdString(), true);
 
     std::vector<Vertex> vertices = {
         Vertex{ { 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 0.0f} },
@@ -67,6 +74,37 @@ void Renderer::Initialize()
         GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
 
     m_dir_light.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+
+    glm::vec3 point_light_positions[] = {
+        glm::vec3(3.0f,  3.0f,  3.0f),
+        glm::vec3(-3.0f,  3.0f,  3.0f),
+        glm::vec3(-3.0f,  3.0f, -3.0f),
+        glm::vec3(3.0f,  3.0f, -3.0f)
+    };
+
+    glm::vec3 point_light_colors[] = {
+        glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 0.3f, 0.3f),
+        glm::vec3(0.3f, 1.0f, 0.3f),
+        glm::vec3(0.3f, 0.3f, 1.0f)
+    };
+
+    for (int i = 0; i < POINT_LIGHTS_COUNT; ++i) 
+    {
+        PointLight light;
+
+        light.position = point_light_positions[i];
+
+        light.ambient = point_light_colors[i] * 0.02f;
+        light.diffuse = point_light_colors[i] * 0.8f;
+        light.specular = point_light_colors[i] * 1.0f;
+
+        light.constant = 1.0f;
+        light.linear = 0.09f;
+        light.quadratic = 0.032f;
+
+        m_point_lights.push_back(light);
+    }
 }
 
 void Renderer::Render(const Camera* camera, float aspect_ratio) 
@@ -94,10 +132,40 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
     m_model_shader->SetVec3("dirLight.specular", m_dir_light.specular);
     m_model_shader->SetVec3("dirLight.direction", m_dir_light.direction);
 
+    m_model_shader->SetInt("PointLightsCount", POINT_LIGHTS_COUNT);
+    for (int i = 0; i < POINT_LIGHTS_COUNT; ++i) 
+    {
+        std::string number = std::to_string(i);
+
+        m_model_shader->SetVec3(("PointLights[" + number + "].ambient").c_str(), m_point_lights[i].ambient);
+        m_model_shader->SetVec3(("PointLights[" + number + "].diffuse").c_str(), m_point_lights[i].diffuse);
+        m_model_shader->SetVec3(("PointLights[" + number + "].specular").c_str(), m_point_lights[i].specular);
+        m_model_shader->SetVec3(("PointLights[" + number + "].position").c_str(), m_point_lights[i].position);
+        m_model_shader->SetFloat(("PointLights[" + number + "].constant").c_str(), m_point_lights[i].constant);
+        m_model_shader->SetFloat(("PointLights[" + number + "].linear").c_str(), m_point_lights[i].linear);
+        m_model_shader->SetFloat(("PointLights[" + number + "].quadratic").c_str(), m_point_lights[i].quadratic);
+    }
     m_mesh->Draw();
+
+    m_light_shader->Use();
+    m_light_shader->SetMat4("view", view);
+    m_light_shader->SetMat4("projection", projection);
+    for (int i = 0; i < POINT_LIGHTS_COUNT; ++i) 
+    {
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, m_point_lights[i].position);
+        model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+        m_light_shader->SetMat4("model", model);
+        m_light_shader->SetVec3("LightColor", m_point_lights[i].specular); // TODO: specular not always equal to 1.0
+        m_mesh->Draw();
+    }
 }
 
 void Renderer::Shutdown() 
 {
-	m_model_shader.reset();
+    m_mesh.reset();
+    m_texture.reset();
+
+    m_model_shader.reset();
+    m_light_shader.reset();
 }
