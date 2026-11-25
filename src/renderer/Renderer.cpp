@@ -65,6 +65,8 @@ void Renderer::Initialize()
 
     m_texture = std::make_unique<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT, 
         GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
+
+    m_dir_light.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 }
 
 void Renderer::Render(const Camera* camera, float aspect_ratio) 
@@ -84,6 +86,13 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
 
     m_model_shader->SetInt("texture0", 0);
     m_texture->Bind(0);
+
+    m_model_shader->SetVec3("viewPos", camera->Position());
+
+    m_model_shader->SetVec3("dirLight.ambient", m_dir_light.ambient);
+    m_model_shader->SetVec3("dirLight.diffuse", m_dir_light.diffuse);
+    m_model_shader->SetVec3("dirLight.specular", m_dir_light.specular);
+    m_model_shader->SetVec3("dirLight.direction", m_dir_light.direction);
 
     m_mesh->Draw();
 }

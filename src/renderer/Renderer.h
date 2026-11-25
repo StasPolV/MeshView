@@ -4,8 +4,13 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "../scene/Mesh.h"
+#include "../scene/lights/Light.h"
+#include "../scene/lights/DirLight.h"
+#include "../scene/lights/SpotLight.h"
+#include "../scene/lights/PointLight.h"
 
 #include <memory>
+#include <vector>
 
 class Camera;
 
@@ -20,4 +25,8 @@ private:
 	std::unique_ptr<Shader> m_model_shader;
 	std::unique_ptr<Mesh> m_mesh;
 	std::unique_ptr<Texture> m_texture;
+
+	DirLight m_dir_light;
+	std::vector<PointLight> m_point_lights;
+	std::vector<SpotLight> m_spot_lights;
 };
