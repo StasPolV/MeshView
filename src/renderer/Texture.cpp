@@ -69,14 +69,14 @@ Texture::~Texture()
 	glDeleteTextures(1, &m_texture);
 }
 
-Texture::Texture(Texture&& other)
+Texture::Texture(Texture&& other) noexcept
 	: m_texture(std::exchange(other.m_texture, 0)), m_width(std::exchange(other.m_width, 0)),
 	  m_height(std::exchange(other.m_height, 0)), m_channels(std::exchange(other.m_channels, 0))
 {
 
 }
 
-Texture& Texture::operator=(Texture&& other) 
+Texture& Texture::operator=(Texture&& other) noexcept 
 {
 	if (this != &other) 
 	{

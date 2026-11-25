@@ -51,8 +51,8 @@ target_link_libraries(assimp_prebuilt INTERFACE
 )
 
 # stb image
-add_library(stb_image INTERFACE)
-target_include_directories(stb_image INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/include)
+add_library(stb_image STATIC Dependencies/stb/stb_image.cpp)
+target_include_directories(stb_image PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/stb)
 
 
 add_executable(MeshView src/main.cpp src/gui/MainWindow.h src/gui/MainWindow.cpp src/gui/OpenGLWidget.h src/gui/OpenGLWidget.cpp
