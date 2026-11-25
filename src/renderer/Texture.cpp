@@ -46,7 +46,12 @@ void Texture::Load(const std::string& path)
 			break;
 		}
 
+		GLint alignment;
+		glGetIntegerv(GL_UNPACK_ALIGNMENT, &alignment);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
+		glPixelStorei(GL_UNPACK_ALIGNMENT, alignment);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else 

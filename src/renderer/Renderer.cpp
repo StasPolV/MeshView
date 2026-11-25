@@ -62,6 +62,9 @@ void Renderer::Initialize()
     };
 
     m_mesh = std::make_unique<Mesh>(vertices, indices);
+
+    m_texture = std::make_unique<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT, 
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
 }
 
 void Renderer::Render(const Camera* camera, float aspect_ratio) 
@@ -78,6 +81,9 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
 
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom()), aspect_ratio, 0.1f, 100.0f);
 	m_model_shader->SetMat4("projection", projection);
+
+    m_model_shader->SetInt("texture0", 0);
+    m_texture->Bind(0);
 
     m_mesh->Draw();
 }

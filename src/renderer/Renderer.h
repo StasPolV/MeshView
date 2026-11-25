@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include "Shader.h"
+#include "Texture.h"
 #include "../scene/Mesh.h"
 
 #include <memory>
@@ -18,4 +19,5 @@ public:
 private:
 	std::unique_ptr<Shader> m_model_shader;
 	std::unique_ptr<Mesh> m_mesh;
+	std::unique_ptr<Texture> m_texture;
 };
