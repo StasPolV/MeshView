@@ -50,11 +50,17 @@ target_link_libraries(assimp_prebuilt INTERFACE
     zlib_prebuilt
 )
 
+# stb image
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/Dependencies/include)
+
+
 add_executable(MeshView src/main.cpp src/gui/MainWindow.h src/gui/MainWindow.cpp src/gui/OpenGLWidget.h src/gui/OpenGLWidget.cpp
 						src/renderer/Shader.h src/renderer/Shader.cpp src/renderer/Renderer.h src/renderer/Renderer.cpp src/scene/Camera.h 
-						src/scene/Camera.cpp src/scene/Mesh.h src/scene/Mesh.cpp src/scene/Model.h src/scene/Model.cpp)
+						src/scene/Camera.cpp src/scene/Mesh.h src/scene/Mesh.cpp src/scene/Model.h src/scene/Model.cpp
+						src/renderer/Texture.h src/renderer/Texture.cpp)
 
-target_link_libraries(MeshView PRIVATE Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets glad glm assimp_prebuilt)
+target_link_libraries(MeshView PRIVATE Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets glad glm assimp_prebuilt stb_image)
 
 # Copy assets to executable directory
 add_custom_command(TARGET MeshView POST_BUILD
