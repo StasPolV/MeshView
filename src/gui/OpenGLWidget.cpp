@@ -33,9 +33,9 @@ void OpenGLWidget::initializeGL()
 
     m_renderer = std::make_unique<Renderer>();
 
-    m_renderer->Initialize();
-
     m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    m_renderer->Initialize();
 
     m_timer.start();
 }
