@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <vector>
+#include <optional>
 
 struct Vertex 
 {
@@ -16,7 +17,7 @@ class Mesh
 {
 public:
 	Mesh(const std::vector<Vertex>& vertices,
-		const std::vector<unsigned int>& indices);
+		const std::vector<unsigned int>& indices, std::optional<int> material_index = std::nullopt);
 	~Mesh();
 
 	Mesh(const Mesh&) = delete;
@@ -28,6 +29,8 @@ public:
 	void UploadToGPU();
 	void Draw() const;
 
+	std::optional<int> GetMaterialIndex() const;
+
 private:
 	std::vector<Vertex> m_vertices;
 	std::vector<unsigned int> m_indices;
@@ -35,4 +38,6 @@ private:
 	GLuint m_VAO = 0;
 	GLuint m_VBO = 0;
 	GLuint m_EBO = 0;
+
+	std::optional<int> m_material_index;
 };

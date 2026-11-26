@@ -69,10 +69,40 @@ void Renderer::Initialize()
         20, 21, 22,  22, 23, 20
     };
 
-    m_mesh = std::make_unique<Mesh>(vertices, indices);
+    m_mesh = std::make_unique<Mesh>(vertices, indices, static_cast<int>(MaterialType::Gold));
 
-    m_texture = std::make_unique<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT, 
-        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST);
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/dark_wood_diffuse.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/dark_wood_specular.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/gold_diffuse.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/gold_specular.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/marble_diffuse.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+    m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/marble_specular.png").toStdString(), GL_REPEAT, GL_REPEAT,
+        GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
+
+    // TODO: create TextureManager
+    Material dark_wood;
+    dark_wood.diffuse_map = m_textures[1];
+    dark_wood.specular_map = m_textures[2];
+    dark_wood.shininess = 32.0f;
+
+    Material gold;
+    gold.diffuse_map = m_textures[3];
+    gold.specular_map = m_textures[4];
+    gold.shininess = 32.0f;
+
+    Material marble;
+    marble.diffuse_map = m_textures[5];
+    marble.specular_map = m_textures[6];
+    marble.shininess = 32.0f;
+    m_materials.insert(m_materials.end(), { dark_wood, gold, marble });
 
     m_dir_light.direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
@@ -176,9 +206,6 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
 	glm::mat4 projection = glm::perspective(glm::radians(camera->Zoom()), aspect_ratio, 0.1f, 100.0f);
 	m_model_shader->SetMat4("projection", projection);
 
-    m_model_shader->SetInt("texture0", 0);
-    m_texture->Bind(0);
-
     m_model_shader->SetVec3("viewPos", camera->Position());
 
     m_model_shader->SetVec3("dirLight.ambient", m_dir_light.ambient);
@@ -218,6 +245,8 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         m_model_shader->SetFloat(("SpotLights[" + number + "].cut_off").c_str(), m_spot_lights[i].cut_off);
         m_model_shader->SetFloat(("SpotLights[" + number + "].outer_cut_off").c_str(), m_spot_lights[i].outer_cut_off);
     }
+    BindMaterial();
+
     m_mesh->Draw();
 
 
@@ -247,11 +276,29 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
 void Renderer::Shutdown() 
 {
     m_mesh.reset();
-    m_texture.reset();
 
     m_model_shader.reset();
     m_light_shader.reset();
 
     m_point_lights.clear();
     m_spot_lights.clear();
+    m_textures.clear();
+    m_materials.clear();
+}
+
+void Renderer::BindMaterial() 
+{
+    if (m_mesh->GetMaterialIndex()) 
+    {
+        const int material_index = m_mesh->GetMaterialIndex().value();
+        const Material& material = m_materials[material_index];
+
+        material.diffuse_map->Bind(0);
+        m_model_shader->SetInt("material.diffuse_map", 0);
+
+        material.specular_map->Bind(1);
+        m_model_shader->SetInt("material.specular_map", 1);
+
+        m_model_shader->SetFloat("material.shininess", material.shininess);
+    }
 }

@@ -3,8 +3,8 @@
 #include <utility>
 #include <vector>
 
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices)
-	: m_vertices(std::move(vertices)), m_indices(std::move(indices))
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::optional<int> material_index)
+	: m_vertices(std::move(vertices)), m_indices(std::move(indices)), m_material_index(material_index)
 {
 	UploadToGPU();
 }
@@ -78,4 +78,9 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
 	}
 
 	return *this;
+}
+
+std::optional<int> Mesh::GetMaterialIndex() const 
+{
+	return m_material_index;
 }
