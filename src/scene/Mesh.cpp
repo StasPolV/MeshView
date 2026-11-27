@@ -59,6 +59,7 @@ Mesh::Mesh(Mesh&& other) noexcept
 	m_VAO = std::exchange(other.m_VAO, 0);
 	m_VBO = std::exchange(other.m_VBO, 0);
 	m_EBO = std::exchange(other.m_EBO, 0);
+	m_material_index = std::exchange(other.m_material_index, std::nullopt);
 }
 
 Mesh& Mesh::operator=(Mesh&& other) noexcept 
@@ -75,6 +76,7 @@ Mesh& Mesh::operator=(Mesh&& other) noexcept
 		m_VAO = std::exchange(other.m_VAO, 0);
 		m_VBO = std::exchange(other.m_VBO, 0);
 		m_EBO = std::exchange(other.m_EBO, 0);
+		m_material_index = std::exchange(other.m_material_index, std::nullopt);
 	}
 
 	return *this;

@@ -14,7 +14,7 @@ namespace
     static const int SPOT_LIGHTS_COUNT = 3;
 }
 
-void Renderer::Initialize() 
+void Renderer::Initialize()
 {
     QDir app_dir(QCoreApplication::applicationDirPath());
 
@@ -28,7 +28,7 @@ void Renderer::Initialize()
     m_light_shader = std::make_unique<Shader>(app_dir.filePath("assets/shaders/light.vs").toStdString(),
         app_dir.filePath("assets/shaders/light.fs").toStdString(), true);
 
-    std::vector<Vertex> vertices = {
+    std::vector<Vertex> cube_vertices = {
         Vertex{ { 0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {0.0f, 0.0f} },
         Vertex{ {-0.5f, -0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {1.0f, 0.0f} },
         Vertex{ {-0.5f,  0.5f, -0.5f}, { 0.0f,  0.0f, -1.0f}, {1.0f, 1.0f} },
@@ -60,7 +60,7 @@ void Renderer::Initialize()
         Vertex{ {-0.5f,  0.5f, -0.5f}, { 0.0f,  1.0f,  0.0f}, {0.0f, 1.0f} }
     };
 
-    std::vector<unsigned int> indices = {
+    std::vector<unsigned int> cube_indices = {
          0,  1,  2,   2,  3,  0,
          4,  5,  6,   6,  7,  4,
          8,  9, 10,  10, 11,  8,
@@ -69,7 +69,99 @@ void Renderer::Initialize()
         20, 21, 22,  22, 23, 20
     };
 
-    m_mesh = std::make_unique<Mesh>(vertices, indices, static_cast<int>(MaterialType::Gold));
+    std::vector<Vertex> pyramid_vertices = {
+        // Front
+        Vertex{{-0.5f, -0.5f,  0.5f}, { 0.0f, 0.447214f,  0.894427f}, {0.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f,  0.5f}, { 0.0f, 0.447214f,  0.894427f}, {1.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.5f,  0.0f}, { 0.0f, 0.447214f,  0.894427f}, {0.5f, 1.0f}},
+
+        // Right
+        Vertex{{ 0.5f, -0.5f,  0.5f}, { 0.894427f, 0.447214f, 0.0f}, {0.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, { 0.894427f, 0.447214f, 0.0f}, {1.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.5f,  0.0f}, { 0.894427f, 0.447214f, 0.0f}, {0.5f, 1.0f}},
+
+        // Back
+        Vertex{{ 0.5f, -0.5f, -0.5f}, { 0.0f, 0.447214f, -0.894427f}, {0.0f, 0.0f}},
+        Vertex{{-0.5f, -0.5f, -0.5f}, { 0.0f, 0.447214f, -0.894427f}, {1.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.5f,  0.0f}, { 0.0f, 0.447214f, -0.894427f}, {0.5f, 1.0f}},
+
+        // Left
+        Vertex{{-0.5f, -0.5f, -0.5f}, {-0.894427f, 0.447214f, 0.0f}, {0.0f, 0.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f}, {-0.894427f, 0.447214f, 0.0f}, {1.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.5f,  0.0f}, {-0.894427f, 0.447214f, 0.0f}, {0.5f, 1.0f}},
+
+        // Bottom
+        Vertex{{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},
+        Vertex{{ 0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+        Vertex{{-0.5f, -0.5f,  0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}
+    };
+
+    std::vector<unsigned int> pyramid_indices = {
+         0,  1,  2,
+         3,  4,  5,
+         6,  7,  8,
+         9, 10, 11,
+        12, 13, 14,
+        14, 15, 12
+    };
+
+    std::vector<Vertex> octahedron_vertices = {
+        // Top front right
+        Vertex{{ 0.0f,  0.5f,  0.0f}, { 0.57735f,  0.57735f,  0.57735f}, {0.5f, 1.0f}},
+        Vertex{{ 0.0f,  0.0f,  0.5f}, { 0.57735f,  0.57735f,  0.57735f}, {0.0f, 0.0f}},
+        Vertex{{ 0.5f,  0.0f,  0.0f}, { 0.57735f,  0.57735f,  0.57735f}, {1.0f, 0.0f}},
+
+        // Top back right
+        Vertex{{ 0.0f,  0.5f,  0.0f}, { 0.57735f,  0.57735f, -0.57735f}, {0.5f, 1.0f}},
+        Vertex{{ 0.5f,  0.0f,  0.0f}, { 0.57735f,  0.57735f, -0.57735f}, {0.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.0f, -0.5f}, { 0.57735f,  0.57735f, -0.57735f}, {1.0f, 0.0f}},
+
+        // Top back left
+        Vertex{{ 0.0f,  0.5f,  0.0f}, {-0.57735f,  0.57735f, -0.57735f}, {0.5f, 1.0f}},
+        Vertex{{ 0.0f,  0.0f, -0.5f}, {-0.57735f,  0.57735f, -0.57735f}, {0.0f, 0.0f}},
+        Vertex{{-0.5f,  0.0f,  0.0f}, {-0.57735f,  0.57735f, -0.57735f}, {1.0f, 0.0f}},
+
+        // Top front left
+        Vertex{{ 0.0f,  0.5f,  0.0f}, {-0.57735f,  0.57735f,  0.57735f}, {0.5f, 1.0f}},
+        Vertex{{-0.5f,  0.0f,  0.0f}, {-0.57735f,  0.57735f,  0.57735f}, {0.0f, 0.0f}},
+        Vertex{{ 0.0f,  0.0f,  0.5f}, {-0.57735f,  0.57735f,  0.57735f}, {1.0f, 0.0f}},
+
+        // Bottom front right
+        Vertex{{ 0.0f, -0.5f,  0.0f}, { 0.57735f, -0.57735f,  0.57735f}, {0.5f, 0.0f}},
+        Vertex{{ 0.5f,  0.0f,  0.0f}, { 0.57735f, -0.57735f,  0.57735f}, {1.0f, 1.0f}},
+        Vertex{{ 0.0f,  0.0f,  0.5f}, { 0.57735f, -0.57735f,  0.57735f}, {0.0f, 1.0f}},
+
+        // Bottom back right
+        Vertex{{ 0.0f, -0.5f,  0.0f}, { 0.57735f, -0.57735f, -0.57735f}, {0.5f, 0.0f}},
+        Vertex{{ 0.0f,  0.0f, -0.5f}, { 0.57735f, -0.57735f, -0.57735f}, {1.0f, 1.0f}},
+        Vertex{{ 0.5f,  0.0f,  0.0f}, { 0.57735f, -0.57735f, -0.57735f}, {0.0f, 1.0f}},
+
+        // Bottom back left
+        Vertex{{ 0.0f, -0.5f,  0.0f}, {-0.57735f, -0.57735f, -0.57735f}, {0.5f, 0.0f}},
+        Vertex{{-0.5f,  0.0f,  0.0f}, {-0.57735f, -0.57735f, -0.57735f}, {1.0f, 1.0f}},
+        Vertex{{ 0.0f,  0.0f, -0.5f}, {-0.57735f, -0.57735f, -0.57735f}, {0.0f, 1.0f}},
+
+        // Bottom front left
+        Vertex{{ 0.0f, -0.5f,  0.0f}, {-0.57735f, -0.57735f,  0.57735f}, {0.5f, 0.0f}},
+        Vertex{{ 0.0f,  0.0f,  0.5f}, {-0.57735f, -0.57735f,  0.57735f}, {1.0f, 1.0f}},
+        Vertex{{-0.5f,  0.0f,  0.0f}, {-0.57735f, -0.57735f,  0.57735f}, {0.0f, 1.0f}}
+    };
+
+    std::vector<unsigned int> octahedron_indices = {
+         0,  1,  2,
+         3,  4,  5,
+         6,  7,  8,
+         9, 10, 11,
+        12, 13, 14,
+        15, 16, 17,
+        18, 19, 20,
+        21, 22, 23
+    };
+
+    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::CUBE), {cube_vertices, cube_indices, static_cast<int>(MaterialType::Gold)});
+    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::PYRAMID), { pyramid_vertices, pyramid_indices, static_cast<int>(MaterialType::Marble) });
+    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::OCTAHEDRON), { octahedron_vertices, octahedron_indices, static_cast<int>(MaterialType::DarkWood) });
 
     m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT,
         GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
@@ -191,14 +283,20 @@ void Renderer::Initialize()
     }
 }
 
-void Renderer::Render(const Camera* camera, float aspect_ratio) 
+void Renderer::Render(const Camera* camera, float aspect_ratio)
 {
+    // TODO: refactor the entire class hierarchy, with this information placed in a separate class
+    glm::vec3 mesh_global_positions[] = {
+        glm::vec3(0.0f),
+        glm::vec3(2.0f, 0.5f, -2.0f),
+        glm::vec3(-3.0f, 1.0f, 0.0f)
+    };
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_model_shader->Use();
 
 	glm::mat4 model(1.0f);
-	m_model_shader->SetMat4("model", model);
 
 	glm::mat4 view(camera->GetViewMatrix());
 	m_model_shader->SetMat4("view", view);
@@ -245,10 +343,16 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         m_model_shader->SetFloat(("SpotLights[" + number + "].cut_off").c_str(), m_spot_lights[i].cut_off);
         m_model_shader->SetFloat(("SpotLights[" + number + "].outer_cut_off").c_str(), m_spot_lights[i].outer_cut_off);
     }
-    BindMaterial();
 
-    m_mesh->Draw();
+    for (int i = 0; i < m_meshes.size(); ++i) 
+    {
+        model = glm::mat4(1.0f);
+        model = glm::translate(model, mesh_global_positions[i]); // TODO: i variable not always equal of global positions
 
+        m_model_shader->SetMat4("model", model);
+        BindMaterial(static_cast<MeshType>(i));
+        m_meshes[i].Draw();
+    }
 
     m_light_shader->Use();
     m_light_shader->SetMat4("view", view);
@@ -260,7 +364,7 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         model = glm::scale(model, glm::vec3(0.25f));
         m_light_shader->SetMat4("model", model);
         m_light_shader->SetVec3("LightColor", m_point_lights[i].specular); // TODO: specular not always equal to 1.0
-        m_mesh->Draw();
+        m_meshes[static_cast<int>(MeshType::CUBE)].Draw();
     }
     for (int i = 1; i < SPOT_LIGHTS_COUNT; ++i) 
     {
@@ -269,14 +373,12 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         model = glm::scale(model, glm::vec3(0.25f));
         m_light_shader->SetMat4("model", model);
         m_light_shader->SetVec3("LightColor", m_spot_lights[i].specular); // TODO: specular not always equal to 1.0
-        m_mesh->Draw();
+        m_meshes[static_cast<int>(MeshType::CUBE)].Draw();
     }
 }
 
 void Renderer::Shutdown() 
 {
-    m_mesh.reset();
-
     m_model_shader.reset();
     m_light_shader.reset();
 
@@ -284,13 +386,15 @@ void Renderer::Shutdown()
     m_spot_lights.clear();
     m_textures.clear();
     m_materials.clear();
+    m_meshes.clear();
 }
 
-void Renderer::BindMaterial() 
+void Renderer::BindMaterial(MeshType type)
 {
-    if (m_mesh->GetMaterialIndex()) 
+    const Mesh& mesh = m_meshes[static_cast<int>(type)];
+    if (mesh.GetMaterialIndex()) 
     {
-        const int material_index = m_mesh->GetMaterialIndex().value();
+        const int material_index = mesh.GetMaterialIndex().value();
         const Material& material = m_materials[material_index];
 
         material.diffuse_map->Bind(0);

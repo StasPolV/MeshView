@@ -6,6 +6,13 @@
 #include <vector>
 #include <optional>
 
+enum class MeshType : int 
+{
+	CUBE,
+	PYRAMID,
+	OCTAHEDRON
+};
+
 struct Vertex 
 {
 	glm::vec3 position;

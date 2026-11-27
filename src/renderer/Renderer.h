@@ -23,12 +23,12 @@ public:
 	void Shutdown();
 
 private:
-	void BindMaterial();
+	void BindMaterial(MeshType type);
 
 	std::unique_ptr<Shader> m_model_shader;
 	std::unique_ptr<Shader> m_light_shader;
 
-	std::unique_ptr<Mesh> m_mesh;
+	std::vector<Mesh> m_meshes;
 	std::vector<std::shared_ptr<Texture>> m_textures;
 
 	DirLight m_dir_light;
