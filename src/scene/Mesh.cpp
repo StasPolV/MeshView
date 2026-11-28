@@ -4,7 +4,7 @@
 #include <vector>
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, std::optional<int> material_index)
-	: m_vertices(std::move(vertices)), m_indices(std::move(indices)), m_material_index(material_index)
+	: m_vertices(vertices), m_indices(indices), m_material_index(material_index)
 {
 	UploadToGPU();
 }
@@ -48,8 +48,6 @@ Mesh::~Mesh()
 	glDeleteVertexArrays(1, &m_VAO);
 	glDeleteBuffers(1, &m_VBO);
 	glDeleteBuffers(1, &m_EBO);
-
-	glBindVertexArray(0);
 }
 
 Mesh::Mesh(Mesh&& other) noexcept 

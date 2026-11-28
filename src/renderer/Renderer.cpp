@@ -159,10 +159,6 @@ void Renderer::Initialize()
         21, 22, 23
     };
 
-    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::CUBE), {cube_vertices, cube_indices, static_cast<int>(MaterialType::Gold)});
-    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::PYRAMID), { pyramid_vertices, pyramid_indices, static_cast<int>(MaterialType::Marble) });
-    m_meshes.insert(m_meshes.begin() + static_cast<size_t>(MeshType::OCTAHEDRON), { octahedron_vertices, octahedron_indices, static_cast<int>(MaterialType::DarkWood) });
-
     m_textures.push_back(std::make_shared<Texture>(app_dir.filePath("assets/textures/faceit_avatar.jpg").toStdString(), GL_REPEAT, GL_REPEAT,
         GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST));
 
@@ -184,19 +180,27 @@ void Renderer::Initialize()
     dark_wood.diffuse_map = m_textures[1];
     dark_wood.specular_map = m_textures[2];
     dark_wood.shininess = 32.0f;
+    m_materials.push_back(std::make_shared<Material>(dark_wood));
 
     Material gold;
     gold.diffuse_map = m_textures[3];
     gold.specular_map = m_textures[4];
     gold.shininess = 32.0f;
+    m_materials.push_back(std::make_shared<Material>(gold));
 
     Material marble;
     marble.diffuse_map = m_textures[5];
     marble.specular_map = m_textures[6];
     marble.shininess = 32.0f;
-    m_materials.insert(m_materials.end(), { dark_wood, gold, marble });
+    m_materials.push_back(std::make_shared<Material>(marble));
 
-    m_dir_light.direction = glm::vec3(0.0f, 0.0f, -1.0f);
+    m_models.push_back(Model(Mesh(cube_vertices, cube_indices, 0), m_materials[static_cast<int>(MaterialType::Gold)]));
+    m_models.push_back(Model(Mesh(pyramid_vertices, pyramid_indices, 0), m_materials[static_cast<int>(MaterialType::Marble)]));
+    m_models.push_back(Model(Mesh(octahedron_vertices, octahedron_indices, 0), m_materials[static_cast<int>(MaterialType::DarkWood)]));
+
+    m_models.push_back(Model(app_dir.filePath("assets/models/scrap_robot.obj").toStdString(), dark_wood));
+    m_models.push_back(Model(app_dir.filePath("assets/models/starfighter.obj").toStdString(), dark_wood));
+    m_models.push_back(Model(app_dir.filePath("assets/models/treasure_chest.obj").toStdString(), dark_wood));
 
     glm::vec3 point_light_positions[] = {
         glm::vec3(3.0f,  3.0f,  3.0f),
@@ -286,10 +290,13 @@ void Renderer::Initialize()
 void Renderer::Render(const Camera* camera, float aspect_ratio)
 {
     // TODO: refactor the entire class hierarchy, with this information placed in a separate class
-    glm::vec3 mesh_global_positions[] = {
+    glm::vec3 model_global_positions[] = {
         glm::vec3(0.0f),
         glm::vec3(2.0f, 0.5f, -2.0f),
-        glm::vec3(-3.0f, 1.0f, 0.0f)
+        glm::vec3(-3.0f, 1.0f, 0.0f),
+        glm::vec3(3.0f, 2.0f, -1.0f),
+        glm::vec3(-4.0f, 0.5f, -4.0f),
+        glm::vec3(1.0f, 1.5f, -6.0f)
     };
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -344,14 +351,19 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         m_model_shader->SetFloat(("SpotLights[" + number + "].outer_cut_off").c_str(), m_spot_lights[i].outer_cut_off);
     }
 
-    for (int i = 0; i < m_meshes.size(); ++i) 
+    for (int i = 0; i < m_models.size(); ++i) 
     {
         model = glm::mat4(1.0f);
-        model = glm::translate(model, mesh_global_positions[i]); // TODO: i variable not always equal of global positions
+        model = glm::translate(model, model_global_positions[i]);
 
         m_model_shader->SetMat4("model", model);
-        BindMaterial(static_cast<MeshType>(i));
-        m_meshes[i].Draw();
+
+        for (const Mesh& mesh : m_models[i].GetMeshes()) 
+        {
+            BindMaterial(m_models[i].GetMaterial(mesh.GetMaterialIndex().value()));
+
+            mesh.Draw();
+        }
     }
 
     m_light_shader->Use();
@@ -364,7 +376,11 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         model = glm::scale(model, glm::vec3(0.25f));
         m_light_shader->SetMat4("model", model);
         m_light_shader->SetVec3("LightColor", m_point_lights[i].specular); // TODO: specular not always equal to 1.0
-        m_meshes[static_cast<int>(MeshType::CUBE)].Draw();
+
+        for (const Mesh& mesh : m_models[0].GetMeshes())
+        {
+            mesh.Draw();
+        }
     }
     for (int i = 1; i < SPOT_LIGHTS_COUNT; ++i) 
     {
@@ -373,7 +389,11 @@ void Renderer::Render(const Camera* camera, float aspect_ratio)
         model = glm::scale(model, glm::vec3(0.25f));
         m_light_shader->SetMat4("model", model);
         m_light_shader->SetVec3("LightColor", m_spot_lights[i].specular); // TODO: specular not always equal to 1.0
-        m_meshes[static_cast<int>(MeshType::CUBE)].Draw();
+        
+        for (const Mesh& mesh : m_models[0].GetMeshes())
+        {
+            mesh.Draw();
+        }
     }
 }
 
@@ -386,17 +406,11 @@ void Renderer::Shutdown()
     m_spot_lights.clear();
     m_textures.clear();
     m_materials.clear();
-    m_meshes.clear();
+    m_models.clear();
 }
 
-void Renderer::BindMaterial(MeshType type)
+void Renderer::BindMaterial(const Material& material)
 {
-    const Mesh& mesh = m_meshes[static_cast<int>(type)];
-    if (mesh.GetMaterialIndex()) 
-    {
-        const int material_index = mesh.GetMaterialIndex().value();
-        const Material& material = m_materials[material_index];
-
         material.diffuse_map->Bind(0);
         m_model_shader->SetInt("material.diffuse_map", 0);
 
@@ -404,5 +418,4 @@ void Renderer::BindMaterial(MeshType type)
         m_model_shader->SetInt("material.specular_map", 1);
 
         m_model_shader->SetFloat("material.shininess", material.shininess);
-    }
 }

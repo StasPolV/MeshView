@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include "Shader.h"
 #include "Texture.h"
+#include "../scene/Model.h"
 #include "../scene/Mesh.h"
 #include "../scene/lights/Light.h"
 #include "../scene/lights/DirLight.h"
@@ -23,17 +24,18 @@ public:
 	void Shutdown();
 
 private:
-	void BindMaterial(MeshType type);
+	void BindMaterial(const Material& material);
 
 	std::unique_ptr<Shader> m_model_shader;
 	std::unique_ptr<Shader> m_light_shader;
 
-	std::vector<Mesh> m_meshes;
+
+	std::vector<Model> m_models;
 	std::vector<std::shared_ptr<Texture>> m_textures;
 
 	DirLight m_dir_light;
 	std::vector<PointLight> m_point_lights;
 	std::vector<SpotLight> m_spot_lights;
 
-	std::vector<Material> m_materials;
+	std::vector<std::shared_ptr<Material>> m_materials;
 };
